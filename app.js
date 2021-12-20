@@ -14,7 +14,7 @@ form1.addEventListener("submit", (e) => {
   if (nickname.value) {
     console.log("clicked");
     socket.emit("set nickname", nickname.value);
-    setNickname.value = "";
+    socket.set('nickname', )
   }
 });
 

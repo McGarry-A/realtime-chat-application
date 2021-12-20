@@ -74,7 +74,9 @@
       </form>
       <button id="leaveRoom">Leave Room</button>
     </section>
-    <h2 id="roomLabel">ROOM: NONE</h2>
+    <h2 id="nicknameLabel">Nickname: Guest</h2>
+    <h2 id="roomLabel">ROOM: None</h2>
+    <h3 id="clientsInRoom">People in room: 0</h3>
     <ul id="messages"></ul>
     <form id="form" action="">
       <input id="input" autocomplete="off" /><button>Send</button>
@@ -93,12 +95,15 @@
       var room = document.getElementById("room");
       var leaveRoom = document.getElementById("leaveRoom");
       var roomLabel = document.getElementById("roomLabel");
+      var nicknameLabel = document.getElementById("nicknameLabel");
+      var clientsInRoom = document.getElementById("clientsInRoom");
 
       form1.addEventListener("submit", (e) => {
         e.preventDefault();
         if (nickname.value) {
           console.log("clicked");
           socket.emit("set nickname", nickname.value);
+          nicknameLabel.innerHTML = `Nickname: ${nickname.value}`;
           setNickname.value = "";
         }
       });
@@ -114,8 +119,8 @@
         if (room.value) {
           console.log("here");
           socket.emit("join room", room.value);
-          roomLabel.innerHTML = "ROOM: " + room.value
-          clearMessages();
+          roomLabel.innerHTML = "ROOM: " + room.value;
+          // clearMessages();
         }
       });
 
@@ -153,12 +158,17 @@
         messages.appendChild(item);
         window.scrollTo(0, document.body.scrollHeight);
       });
+      // NOT WORKING PROPERLY
+      //   const clearMessages = () => {
+      //     while (messages.firstChild > 1) {
+      //       messages.removeChild(messages.lastChild);
+      //     }
+      //   };
 
-      const clearMessages = () => {
-        while (messages.firstChild > 1) {
-          messages.removeChild(messages.lastChild);
-        }
-      };
+      socket.on("update people in room", (numberOfPeople) => {
+        clientsInRoom.innerHTML = `People in room: ${numberOfPeople}`;
+      });
+
     </script>
   </body>
 </html>
