@@ -4,6 +4,7 @@ const http = require("http");
 const server = http.createServer(app);
 const { Server } = require("socket.io");
 const io = new Server(server);
+const { fetchUsers } = require("./utils");
 
 app.get("/", (_, res) => {
   res.sendFile(__dirname + "/index.html");
@@ -20,32 +21,24 @@ io.on("connection", (socket) => {
     socket.nickname = nickname;
   });
 
-  socket.on("disconnect", () => {
-    io.emit("disconnect message", "A user disconnected");
-  });
-
-  socket.on("join room", async (room) => {
-    // FETCHES IDS OF USERS IN THAT ROOM
-    const fetchUsers = async () => {
-        try {
-            const clientsInRoom = await io.in(room).allSockets();
-            console.log(clientsInRoom.size)
-            return clientsInRoom.size;
-        } catch (error) {
-            console.log(error);
-        }
-    };
+  socket.on("join room", async room => {
     socket.join(room);
 
-    const numberOfUsers = await fetchUsers();
+    const numberOfUsers = await fetchUsers(io, room);
     io.to(room).emit("update people in room", numberOfUsers);
+
     socket.on("chat message", (msg) => {
       io.to(room).emit("chat message", msg, socket.nickname);
     });
-    console.log("user joined a new room: " + room);
   });
 
-  socket.on("leave room", (id) => {
-    console.log(`${id} has left the room`);
-  });
+  socket.on("leave room", async room => {
+    socket.leave(room)
+    const numberOfUsers = await fetchUsers(io, room)
+    io.to(room).emit("update people in room", numberOfUsers)
+    io.to(room).emit("disconnect", room)
+  })
+//   socket.on("disconnect", () => {
+//     io.to(room).emit("disconnect message", "A user disconnected");
+//   });
 });

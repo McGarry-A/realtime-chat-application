@@ -108,10 +108,13 @@
         }
       });
 
-      leaveRoom.addEventListener("click", (e) => {
-        socket.emit("leave room", socket.id);
-        clearMessages();
-        console.log("leaving room");
+      leaveRoom.addEventListener("click", () => {
+        if (room.value) {
+            console.log(room.value)
+            socket.emit("leave room", room.value)
+            roomLabel.innerHTML = "ROOM: None"
+            clientsInRoom.innerHTML = 0
+        }
       });
 
       form2.addEventListener("submit", (e) => {
@@ -158,6 +161,7 @@
         messages.appendChild(item);
         window.scrollTo(0, document.body.scrollHeight);
       });
+
       // NOT WORKING PROPERLY
       //   const clearMessages = () => {
       //     while (messages.firstChild > 1) {
