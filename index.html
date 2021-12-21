@@ -109,21 +109,19 @@
 
       leaveRoom.addEventListener("click", () => {
         if (room.value) {
-          console.log(room.value);
+          clearMessages();
           socket.emit("leave room", room.value);
           roomLabel.innerHTML = "ROOM: None";
           clientsInRoom.innerHTML = 0;
-          clearMessages();
         }
       });
 
       form2.addEventListener("submit", (e) => {
         e.preventDefault();
         if (room.value) {
-          console.log("here");
+          clearMessages();
           socket.emit("join room", room.value);
           roomLabel.innerHTML = "ROOM: " + room.value;
-          clearMessages();
         }
       });
 
