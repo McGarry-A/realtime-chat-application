@@ -4,59 +4,8 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-    <style>
-      body {
-        margin: 0;
-        padding-bottom: 3rem;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-          Helvetica, Arial, sans-serif;
-      }
-
-      #form {
-        background: rgba(0, 0, 0, 0.15);
-        padding: 0.25rem;
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        display: flex;
-        height: 3rem;
-        box-sizing: border-box;
-        backdrop-filter: blur(10px);
-      }
-      #input {
-        border: none;
-        padding: 0 1rem;
-        flex-grow: 1;
-        border-radius: 2rem;
-        margin: 0.25rem;
-      }
-      #input:focus {
-        outline: none;
-      }
-      #form > button {
-        background: #333;
-        border: none;
-        padding: 0 1rem;
-        margin: 0.25rem;
-        border-radius: 3px;
-        outline: none;
-        color: #fff;
-      }
-
-      #messages {
-        list-style-type: none;
-        margin: 0;
-        padding: 0;
-      }
-      #messages > li {
-        padding: 0.5rem 1rem;
-      }
-      #messages > li:nth-child(odd) {
-        background: #efefef;
-      }
-    </style>
+    <title>Chat Application</title>
+    <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
     <section>
@@ -110,10 +59,11 @@
 
       leaveRoom.addEventListener("click", () => {
         if (room.value) {
-            console.log(room.value)
-            socket.emit("leave room", room.value)
-            roomLabel.innerHTML = "ROOM: None"
-            clientsInRoom.innerHTML = 0
+          console.log(room.value);
+          socket.emit("leave room", room.value);
+          roomLabel.innerHTML = "ROOM: None";
+          clientsInRoom.innerHTML = 0;
+          clearMessages();
         }
       });
 
@@ -123,7 +73,7 @@
           console.log("here");
           socket.emit("join room", room.value);
           roomLabel.innerHTML = "ROOM: " + room.value;
-          // clearMessages();
+          clearMessages();
         }
       });
 
@@ -147,6 +97,7 @@
         item.textContent = "A user has disconnected.";
         messages.appendChild(item);
         window.scrollTo(0, document.body.scrollHeight);
+        clearMessages();
       });
 
       socket.on("chat message", function (msg, nickname) {
@@ -162,17 +113,15 @@
         window.scrollTo(0, document.body.scrollHeight);
       });
 
-      // NOT WORKING PROPERLY
-      //   const clearMessages = () => {
-      //     while (messages.firstChild > 1) {
-      //       messages.removeChild(messages.lastChild);
-      //     }
-      //   };
+      const clearMessages = () => {
+        while (messages.firstChild) {
+          messages.removeChild(messages.firstChild);
+        }
+      };
 
       socket.on("update people in room", (numberOfPeople) => {
         clientsInRoom.innerHTML = `People in room: ${numberOfPeople}`;
       });
-
     </script>
   </body>
 </html>

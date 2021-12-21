@@ -17,10 +17,16 @@ server.listen(3000, () => {
 io.on("connection", (socket) => {
   io.emit("connection message", "A user connected...");
 
+  // DISCONNECT
+  socket.on("disconnect", () => {
+    io.emit("disconnect message", "A user disconnected");
+  });
+  
   socket.on("set nickname", (nickname) => {
     socket.nickname = nickname;
   });
 
+  // JOIN ROOM > LEAVE ROOM > CHAT MESSAGES TO ROOM
   socket.on("join room", async room => {
     socket.join(room);
 
@@ -35,10 +41,9 @@ io.on("connection", (socket) => {
   socket.on("leave room", async room => {
     socket.leave(room)
     const numberOfUsers = await fetchUsers(io, room)
+
     io.to(room).emit("update people in room", numberOfUsers)
     io.to(room).emit("disconnect", room)
+    io.emit("disconnect message", socket.nickname ? `${socket.nickname} has disconnected` : `${socket.id} has disconnected`);
   })
-//   socket.on("disconnect", () => {
-//     io.to(room).emit("disconnect message", "A user disconnected");
-//   });
 });
