@@ -16,11 +16,6 @@ server.listen(3000, () => {
 
 io.on("connection", (socket) => {
   io.emit("connection message", "A user connected...");
-
-  // DISCONNECT
-  socket.on("disconnect", () => {
-    io.emit("disconnect message", "A user disconnected");
-  });
   
   socket.on("set nickname", (nickname) => {
     socket.nickname = nickname;
@@ -41,9 +36,18 @@ io.on("connection", (socket) => {
   socket.on("leave room", async room => {
     socket.leave(room)
     const numberOfUsers = await fetchUsers(io, room)
-
     io.to(room).emit("update people in room", numberOfUsers)
-    io.to(room).emit("disconnect", room)
-    io.emit("disconnect message", socket.nickname ? `${socket.nickname} has disconnected` : `${socket.id} has disconnected`);
+
+    const disconnectUsername = socket => {
+      if (socket.nickname === undefined) {
+        return `${socket.id} has disconnected`
+      } else {
+        return `${socket.nickname} has disconnected`
+      }
+    }
+
+    const message = disconnectUsername(socket)
+  
+    io.to(room).emit('disconnect message', message)
   })
 });
